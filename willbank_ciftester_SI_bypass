@@ -1,0 +1,242 @@
+<html>
+
+<head>
+  <title> Test Page</title>
+</head>
+
+<body onLoad="addOption_list()" ;>
+<style>
+    body {
+                background-image: url("https://newcdn.guiadoinvestidor.com.br/gdi-static/2021/11/Will-Bank-1-960x479.png")
+            }
+</style>
+  <script>
+    const cif_list = {
+      "Data de vencimento da fatura": "due_date",
+      "Dia de vencimento da fatura": "due_day",
+      "Grupo de afinidade": "affinity_group",
+      "Código de barras do boleto": "digitable_line",
+      "Limite de crédito": "invoice_limite_credit",
+      "Limite disponível": "invoice_availlable_credit_amount",
+      "Valor total da Fatura aberta": "invoice_balance_opened",
+      "Status da fatura em aberto": "invoice_payment_status_opened",
+      "Cliente atrasado no período de fechamento": "overdue_in_closing_period",
+      "Conta pura": "pure_account",
+      "Gamificação": "gamification",
+      "Status de entrega": "logistic_card_status",
+      "Tempo de entrega do cartão": "logistic_delivery_time",
+      "Logradouro do endereço de correspondência": "customer_address_public_place",
+      "Número do endereço de correspondência": "customer_address_number",
+      "Cidade do endereço de correspondência": "customer_address_locality",
+      "UF do endereço de correspondência": "customer_address_state_abbreviation",
+      "CEP do endereço de correspondência": "customer_address_zip_code",
+      "Dias em atraso da fatura": "delay_days"
+    };
+    var cif_types = {
+      "Data de vencimento da fatura": "singleline",
+      "Dia de vencimento da fatura": "number",
+      "Grupo de afinidade": "singleline",
+      "Código de barras do boleto": "singleline",
+      "Limite de crédito": "number",
+      "Limite disponível": "number",
+      "Valor total da Fatura aberta": "number",
+      "Status da fatura em aberto": "singleline",
+      "Cliente atrasado no período de fechamento": "checkbox",
+      "Conta pura": "checkbox",
+      "Gamificação": "checkbox",
+      "Status de entrega": "singleline",
+      "Tempo de entrega do cartão": "number",
+      "Logradouro do endereço de correspondência": "singleline",
+      "Número do endereço de correspondência": "singleline",
+      "Cidade do endereço de correspondência": "singleline",
+      "UF do endereço de correspondência": "singleline",
+      "CEP do endereço de correspondência": "singleline",
+      "Dias em atraso da fatura": "number",
+    };
+    var doNotUpdateCif = false;
+    var allCifObjects = {};
+
+    function addOption(selectbox, text, value) {
+      var optn = document.createElement("OPTION");
+      optn.text = text;
+      optn.value = value;
+      selectbox.options.add(optn);
+    }
+
+    function addOption_list() {
+      var month = Object.keys(cif_list);
+      for (var i = 0; i < month.length; ++i) {
+        addOption(document.drop_list.cif_listbox, month[i], month[i]);
+      }
+    }
+
+    function getListBoxValue() {
+      return document.drop_list.cif_listbox.value;
+    }
+
+    function updateCifObject() {
+      var selected = getListBoxValue();
+      let cifVal;
+      switch (cif_types[selected]) {
+        case "singleline":
+          cifVal = document.drop_list.cif_singleline_value.value;
+          break;
+        case "checkbox":
+          cifVal = document.drop_list.cif_checkbox_value.checked;
+          break;
+        case "number":
+          cifVal = document.drop_list.cif_number_value.value;
+          break;
+      }
+      updateCif(
+        cif_list[selected],
+        cif_types[selected],
+        cifVal
+      );
+    }
+
+    function updateValueForms() {
+      var selected = getListBoxValue();
+      let selected_key = cif_list[selected];
+      console.log(selected,selected_key);
+      doNotUpdateCif = true
+      document.drop_list.cif_singleline_value.value = allCifObjects[selected_key] 
+          ? allCifObjects[selected_key].value
+          : "";
+      document.drop_list.cif_checkbox_value.checked = allCifObjects[selected_key] 
+          ? allCifObjects[selected_key].value
+          : false;
+      document.drop_list.cif_number_value.value = allCifObjects[selected_key] 
+          ? allCifObjects[selected_key].value
+          : "";
+      switch (cif_types[selected]) {
+        case "singleline":
+          document.drop_list.cif_singleline_value.style.visibility = "visible";
+          document.drop_list.cif_checkbox_value.style.visibility = "hidden";
+          document.drop_list.cif_number_value.style.visibility = "hidden";
+          break;
+        case "checkbox":
+          document.drop_list.cif_singleline_value.style.visibility = "hidden";
+          document.drop_list.cif_number_value.style.visibility = "hidden";
+          document.drop_list.cif_checkbox_value.style.visibility = "visible";
+          break;
+        case "number":
+          document.drop_list.cif_singleline_value.style.visibility = "hidden";
+          document.drop_list.cif_number_value.style.visibility = "visible";
+          document.drop_list.cif_checkbox_value.style.visibility = "hidden";
+          break;
+      }
+      doNotUpdateCif = false
+    }
+
+    function updateCif(cif_name, cif_type, cif_value) {
+      var cif_object = {};
+      var outputTestEl = document.getElementById("output");
+      outputTestEl.innerText = "Zeeshan is so patient";
+      var cif_object_json = `
+        {
+            "${cif_name}" : {
+                "type" : "${cif_type}",
+                "value" : ${ cif_type === "checkbox" ? cif_value : ('"' + cif_value + '"')}
+
+            }
+        }`;
+      /*
+      cif_object[cif_name] = {
+          type: cif_type,
+          value: cif_value
+      };
+      */
+      cif_object = JSON.parse(cif_object_json);
+      console.log(cif_object_json);
+      outputTestEl.innerText = cif_object_json;
+      if (!doNotUpdateCif) {
+        console.log("updating cif:", cif_object);
+        /*
+          window.Helpshift(
+              "setCustomIssueFields",
+              cif_object
+          );
+          */
+        allCifObjects = {
+          ...allCifObjects,
+          ...cif_object
+        };
+        window.Helpshift(
+          "setCustomIssueFields",
+          allCifObjects
+        );
+      }
+    }
+
+    function getCifValueInput(selected_cif_type) {
+      let cif_value_element_id = `cif_${selected_cif_type}_value`;
+      let return_value;
+      let valEl = document.drop_list[cif_value_element_id];
+      console.log(cif_value_element_id);
+      switch (selected_cif_type) {
+        case "checkbox":
+          return_value = valEl.checked;
+          break;
+          /*case "number":
+            return_value = parseFloat(valEl.value);
+            break;*/
+        default:
+          return_value = valEl.value;
+          break;
+      }
+      return return_value;
+    }
+
+    function callUpdateCif() {
+      var selected = getListBoxValue();
+      var cif_type = cif_types[selected];
+      var cif_value = getCifValueInput(cif_type);
+      console.log(cif_value);
+      console.log("cif_value_type is: ", typeof(cif_value));
+      updateCif(selected, cif_type, cif_value)
+    }
+    (function() {
+      var PLATFORM_ID = "meu-pag_platform_20221027223848425-fa07c08457ebac4",
+        DOMAIN = "meu-pag",
+        LANGUAGE = "en";
+      window.helpshiftConfig = {
+        platformId: PLATFORM_ID,
+        domain: DOMAIN,
+        language: LANGUAGE,
+        //userId: userIdFromQuery
+      };
+    })();
+    ! function(t, e) {
+      if ("function" != typeof window.Helpshift) {
+        var n = function() {
+          n.q.push(arguments)
+        };
+        n.q = [], window.Helpshift = n;
+        var i, a = t.getElementsByTagName("script")[0];
+        if (t.getElementById(e)) return;
+        i = t.createElement("script"), i.async = !0, i.id = e, i.src = "https://webchat.helpshift.com/latest/webChat.js";
+        var o = function() {
+          window.Helpshift("init")
+        };
+        window.attachEvent ? i.attachEvent("onload", o) : i.addEventListener("load", o, !1), a.parentNode.insertBefore(i, a)
+      } else window.Helpshift("update")
+    }(document, "hs-chat");
+  </script>
+
+  <FORM name="drop_list">
+
+    <SELECT NAME="cif_listbox" onChange="updateValueForms()">
+      <Option value="">Cif list</option>
+    </SELECT>
+
+    <br>
+    <input type="text" id="cif_singleline_value" style="visibility:hidden" oninput="updateCifObject()"></input><br>
+    <input type="checkbox" id="cif_checkbox_value" style="visibility:hidden" oninput="updateCifObject()"></input>
+    <input type="number" id="cif_number_value" style="visibility:hidden" oninput="updateCifObject()"></input>
+  </form>
+
+  <p id="output">dsf</p>
+</body>
+
+</html>
